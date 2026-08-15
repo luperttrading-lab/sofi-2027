@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<title>Sonnenfinsternis 2. August 2027 v4.5</title>
+<title>Sonnenfinsternis 2. August 2027 v4.6</title>
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --line:#252c36; --fg:#e6edf3; --dim:#8b949e;
@@ -28,10 +28,23 @@
   #base button.sel{background:#22303f; color:var(--fg);}
   #wrap{flex:1 1 auto; min-height:0; position:relative; background:var(--sea);}
   canvas{display:block; width:100%; height:100%; touch-action:none;}
-  #times{position:absolute; right:10px; top:10px;
-    background:rgba(22,27,34,.88); color:var(--dim); border:1px solid var(--line);
-    border-radius:8px; padding:6px 10px; font:500 11.5px inherit; cursor:pointer; opacity:.92;}
-  #times.on{color:var(--fg); background:rgba(34,48,63,.92);}
+  /* Zustandsschalter statt Textknopf: Stellung und Farbe zeigen an, ob die Zeiten
+     eingeblendet sind — das Wort daneben benennt nur, worum es geht. */
+  #times{position:absolute; right:10px; top:10px; display:flex; align-items:center;
+    gap:7px; background:rgba(22,27,34,.9); border:1px solid var(--line);
+    border-radius:9px; padding:6px 10px 6px 8px; cursor:pointer;
+    font:500 11.5px inherit; color:var(--fg); user-select:none;}
+  #times input{position:absolute; opacity:0; width:0; height:0;}
+  #times .tr{position:relative; width:32px; height:18px; border-radius:9px;
+    background:#3a434e; transition:background .16s;}
+  #times .kn{position:absolute; top:2px; left:2px; width:14px; height:14px;
+    border-radius:50%; background:#c9d2dc; transition:transform .16s, background .16s;}
+  #times input:checked + .tr{background:#3a7bd8;}
+  #times input:checked + .tr .kn{transform:translateX(14px); background:#fff;}
+  #times input:focus-visible + .tr{outline:2px solid var(--limit); outline-offset:2px;}
+  @media (prefers-reduced-motion:reduce){
+    #times .tr,#times .kn{transition:none;}
+  }
   #busy{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     background:var(--sea); font:500 13px "IBM Plex Mono",ui-monospace,Menlo,monospace; color:#33475a;}
   #readout{flex:none; background:var(--panel); border-top:1px solid var(--line);
@@ -72,14 +85,14 @@
 <div id="app">
   <header>
     <h1>Totale Sonnenfinsternis · 2. August 2027</h1>
-    <div class="sub">Spanien · Nordafrika · Arabien · v4.5</div>
+    <div class="sub">Spanien · Nordafrika · Arabien · v4.6</div>
     <div id="base">
       <button data-k="vec" class="sel">Vektor</button><button data-k="topo">Karte</button><button data-k="sat">Satellit</button>
     </div>
   </header>
   <div id="wrap">
     <canvas id="cv"></canvas>
-    <button id="times" type="button">Zeiten aus</button>
+    <label id="times"><input type="checkbox" id="timesBox"><span class="tr"><span class="kn"></span></span>Zeiten</label>
     <div id="busy">Schattenpfad wird berechnet …</div>
   </div>
   <div id="readout">
@@ -644,12 +657,10 @@ cv.addEventListener('wheel',e=>{
   zoomAt(e.clientX-r.left,e.clientY-r.top,Math.exp(-e.deltaY*0.0016));
   scheduleDraw();
 },{passive:false});
-const tb=document.getElementById('times');
-tb.addEventListener('click',()=>{
-  SHOW_TIMES=!SHOW_TIMES; lblKey=null;
-  tb.classList.toggle('on',SHOW_TIMES);
-  tb.textContent=SHOW_TIMES?'Zeiten an':'Zeiten aus';
-  draw();
+const tbox=document.getElementById('timesBox');
+tbox.checked=SHOW_TIMES;
+tbox.addEventListener('change',()=>{
+  SHOW_TIMES=tbox.checked; lblKey=null; draw();
 });
 
 const RO=document.getElementById('readout'), LEG=RO.querySelector('.legend').outerHTML;
