@@ -3,7 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<title>Sonnenfinsternis 2. August 2027 v4.6</title>
+<title>Sonnenfinsternis 2. August 2027 v4.8</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SoFi 2027">
+<meta name="theme-color" content="#0d1117">
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --line:#252c36; --fg:#e6edf3; --dim:#8b949e;
@@ -85,9 +93,9 @@
 <div id="app">
   <header>
     <h1>Totale Sonnenfinsternis · 2. August 2027</h1>
-    <div class="sub">Spanien · Nordafrika · Arabien · v4.6</div>
+    <div class="sub">Spanien · Nordafrika · Arabien · v4.8</div>
     <div id="base">
-      <button data-k="vec" class="sel">Vektor</button><button data-k="topo">Karte</button><button data-k="sat">Satellit</button>
+      <button data-k="vec">Vektor</button><button data-k="topo">Karte</button><button data-k="sat" class="sel">Satellit</button>
     </div>
   </header>
   <div id="wrap">
@@ -284,7 +292,9 @@ const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/';
    laden — sonst stünden Esris Ortsnamen unter unseren eigenen. World_Topo_Map hat
    die Namen fest eingebrannt und ist dafür unbrauchbar. */
 const BASES={topo:ESRI+'World_Terrain_Base/MapServer/tile/', sat:ESRI+'World_Imagery/MapServer/tile/'};
-let baseMode='vec', tileCache=new Map(), tileFails=0;
+/* Satellit ist der Startzustand. Bleiben die Kacheln aus — etwa in einer Vorschau
+   ohne Netzzugriff — schaltet drawTiles() nach sechs Fehlversuchen auf Vektor. */
+let baseMode='sat', tileCache=new Map(), tileFails=0;
 function tileZoom(){
   return Math.max(1, Math.min(16, Math.round(Math.log2(view.scale/256))));
 }
