@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<title>Sonnenfinsternis 2. August 2027 v4.3</title>
+<title>Sonnenfinsternis 2. August 2027 v4.4</title>
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --line:#252c36; --fg:#e6edf3; --dim:#8b949e;
@@ -75,7 +75,7 @@
 <div id="app">
   <header>
     <h1>Totale Sonnenfinsternis · 2. August 2027</h1>
-    <div class="sub">Spanien · Nordafrika · Arabien · v4.3</div>
+    <div class="sub">Spanien · Nordafrika · Arabien · v4.4</div>
     <div id="base">
       <button data-k="vec" class="sel">Vektor</button><button data-k="topo">Karte</button><button data-k="sat">Satellit</button>
     </div>
@@ -271,7 +271,10 @@ function fitAll(){
 
 /* ===== Kachel-Layer (nur wenn erreichbar; in Sandboxes wird geblockt) ===== */
 const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/';
-const BASES={topo:ESRI+'World_Topo_Map/MapServer/tile/', sat:ESRI+'World_Imagery/MapServer/tile/'};
+/* World_Terrain_Base führt die Beschriftung in einer eigenen Schicht, die wir nicht
+   laden — sonst stünden Esris Ortsnamen unter unseren eigenen. World_Topo_Map hat
+   die Namen fest eingebrannt und ist dafür unbrauchbar. */
+const BASES={topo:ESRI+'World_Terrain_Base/MapServer/tile/', sat:ESRI+'World_Imagery/MapServer/tile/'};
 let baseMode='vec', tileCache=new Map(), tileFails=0;
 function tileZoom(){
   return Math.max(1, Math.min(16, Math.round(Math.log2(view.scale/256))));
@@ -437,7 +440,10 @@ function draw(){
     if(N.length>1 && Sd.length>1){
       ctx.save();
       ctx.beginPath(); ctx.rect(0,0,W,H); ctx.clip();
-      ctx.globalAlpha = detail?.15:.22; ctx.fillStyle='#2b3f8f';
+      /* Auf dem dunklen Satellitenbild trägt ein dunkelblauer Schleier nicht;
+         dort wird der Streifen hell aufgehellt statt abgedunkelt. */
+      ctx.globalAlpha = dark ? (detail?.22:.28) : (detail?.15:.22);
+      ctx.fillStyle   = dark ? '#bcd8ff' : '#2b3f8f';
       ctx.beginPath();
       for(let i=0;i<N.length;i++){const p=P(N[i][0],N[i][1]);
         i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]);}
