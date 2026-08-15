@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<title>Sonnenfinsternis 2. August 2027 v4.4</title>
+<title>Sonnenfinsternis 2. August 2027 v4.5</title>
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --line:#252c36; --fg:#e6edf3; --dim:#8b949e;
@@ -28,10 +28,7 @@
   #base button.sel{background:#22303f; color:var(--fg);}
   #wrap{flex:1 1 auto; min-height:0; position:relative; background:var(--sea);}
   canvas{display:block; width:100%; height:100%; touch-action:none;}
-  #reset{position:absolute; right:10px; top:10px;
-    background:rgba(22,27,34,.88); color:var(--fg); border:1px solid var(--line);
-    border-radius:8px; padding:6px 10px; font:500 11.5px inherit; cursor:pointer; opacity:.92;}
-  #times{position:absolute; right:10px; top:46px;
+  #times{position:absolute; right:10px; top:10px;
     background:rgba(22,27,34,.88); color:var(--dim); border:1px solid var(--line);
     border-radius:8px; padding:6px 10px; font:500 11.5px inherit; cursor:pointer; opacity:.92;}
   #times.on{color:var(--fg); background:rgba(34,48,63,.92);}
@@ -75,15 +72,14 @@
 <div id="app">
   <header>
     <h1>Totale Sonnenfinsternis · 2. August 2027</h1>
-    <div class="sub">Spanien · Nordafrika · Arabien · v4.4</div>
+    <div class="sub">Spanien · Nordafrika · Arabien · v4.5</div>
     <div id="base">
       <button data-k="vec" class="sel">Vektor</button><button data-k="topo">Karte</button><button data-k="sat">Satellit</button>
     </div>
   </header>
   <div id="wrap">
     <canvas id="cv"></canvas>
-    <button id="reset" type="button">Ganzer Pfad</button>
-    <button id="times" type="button" class="on">Zeiten an</button>
+    <button id="times" type="button">Zeiten aus</button>
     <div id="busy">Schattenpfad wird berechnet …</div>
   </div>
   <div id="readout">
@@ -381,8 +377,8 @@ function scheduleDraw(){
   requestAnimationFrame(()=>{rafPending=false; draw();});
 }
 function draw(){
-  boxes=[];   /* nur die Schaltflächen; Ortslabels dünnen sich über die Zoomstufe aus */
-  for(const id of ['reset','times']){
+  boxes=[];   /* nur die Schaltfläche; Ortslabels dünnen sich über die Zoomstufe aus */
+  for(const id of ['times']){
     const el=document.getElementById(id); if(!el) continue;
     boxes.push([W-el.offsetWidth-14, el.offsetTop-4, el.offsetWidth+10, el.offsetHeight+8]);
   }
@@ -571,7 +567,7 @@ function scaleBar(dark){
 }
 
 /* ===== Interaktion ===== */
-let HOME=null, VISIBLE=[], SHOW_TIMES=true;
+let HOME=null, VISIBLE=[], SHOW_TIMES=false;
 const LABEL_BUDGET=18;
 let dragging=false, pinch=null, moved=0, startT=0, last=null, lastTap=0;
 const pts=new Map();
@@ -648,9 +644,6 @@ cv.addEventListener('wheel',e=>{
   zoomAt(e.clientX-r.left,e.clientY-r.top,Math.exp(-e.deltaY*0.0016));
   scheduleDraw();
 },{passive:false});
-document.getElementById('reset').addEventListener('click',()=>{
-  fitAll(); HOME=null; showHint(); draw();
-});
 const tb=document.getElementById('times');
 tb.addEventListener('click',()=>{
   SHOW_TIMES=!SHOW_TIMES; lblKey=null;
