@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<title>Sonnenfinsternis 2. August 2027 v4.8</title>
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-<link rel="manifest" href="manifest.json">
+<title>Sonnenfinsternis 2. August 2027 v5.0</title>
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=2">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png?v=2">
+<link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png?v=2">
+<link rel="manifest" href="./manifest.json?v=2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SoFi 2027">
@@ -93,7 +93,7 @@
 <div id="app">
   <header>
     <h1>Totale Sonnenfinsternis · 2. August 2027</h1>
-    <div class="sub">Spanien · Nordafrika · Arabien · v4.8</div>
+    <div class="sub">Spanien · Nordafrika · Arabien · v5.0</div>
     <div id="base">
       <button data-k="vec">Vektor</button><button data-k="topo">Karte</button><button data-k="sat" class="sel">Satellit</button>
     </div>
@@ -694,6 +694,8 @@ function nearestCentral(lat,lon){
 function pick(px,py){
   /* Kein Einrasten auf Orte: gerechnet wird exakt an der getippten Stelle.
      Der nächstgelegene Ort dient nur der Orientierung. */
+  const rr=cv.getBoundingClientRect();
+  if(Math.abs(rr.width-W)>0.5 || Math.abs(rr.height-H)>0.5){ resize(); }
   const [la,lo]=invP(px,py);
   let near=null, nd=1e9;
   for(const c of CITIES){
@@ -726,6 +728,16 @@ function pick(px,py){
   draw();
 }
 window.addEventListener('resize',()=>{resize();draw();});
+/* Die Leinwand ändert ihre Größe auch ohne Fenster-Ereignis — etwa wenn Safari
+   beim Zoomen die Adressleiste einklappt. Ohne Nachführung rechnet die App mit
+   veralteter Bildmitte, und der Tipppunkt landet daneben. */
+if(window.ResizeObserver){
+  new ResizeObserver(()=>{
+    const r=cv.getBoundingClientRect();
+    if(Math.abs(r.width-W)>0.5 || Math.abs(r.height-H)>0.5){ resize(); draw(); }
+  }).observe(cv.parentNode);
+}
+window.addEventListener('orientationchange',()=>setTimeout(()=>{resize();draw();},220));
 resize();
 setTimeout(()=>{
   buildCentral(); buildLimits();
